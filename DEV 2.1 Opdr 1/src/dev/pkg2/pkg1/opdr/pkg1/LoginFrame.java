@@ -7,6 +7,8 @@ package dev.pkg2.pkg1.opdr.pkg1;
 
 import java.sql.*;
 import javax.swing.JOptionPane;
+import java.awt.event.*;
+import java.awt.*;
 
 /**
  *
@@ -17,6 +19,8 @@ public class LoginFrame extends javax.swing.JFrame {
     Connection con;
     Statement st;
     ResultSet rs;
+    static String user;
+    static String pass;
     
     public LoginFrame() {
         initComponents();
@@ -28,7 +32,7 @@ public class LoginFrame extends javax.swing.JFrame {
             Class.forName("org.postgresql.Driver");
             con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/DEV 2.1 Opdr 1", "postgres", "steven");
             if(con != null)
-                System.out.println("Connected");
+                System.out.println("Connected LoginFrame");
             st = con.createStatement();
             //String sql = "insert into servers values('', '', '')";
             //String sql = "insert into servers ('address', 'name', 'location')values('', '', '')";
@@ -40,6 +44,11 @@ public class LoginFrame extends javax.swing.JFrame {
         catch(Exception e){
             e.printStackTrace();
         }
+    }
+    
+    public void closeFrame(){
+        WindowEvent winClosingEvent = new WindowEvent(this,WindowEvent.WINDOW_CLOS­ING);
+        Toolkit.getDefaultToolkit().getSystemEve­ntQueue().postEvent(winClosingEvent);
     }
 
     /**
@@ -58,7 +67,7 @@ public class LoginFrame extends javax.swing.JFrame {
         LogP = new javax.swing.JPasswordField();
         LogU = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(255, 51, 51));
 
         SignupB.setText("Sign Up");
@@ -133,18 +142,31 @@ public class LoginFrame extends javax.swing.JFrame {
 
     private void LoginBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginBActionPerformed
         try{
-            String user = LogU.getText();
-            String pass = LogP.getText();
-            String sql = "select user_name,password from users where user_name = '"+user+"'and password = '"+pass+"'";
+            this.pass = LogP.getText();
+            this.user = LogU.getText();
+            String sql = "select user_name from users where user_name = '"+user+"'";
+            String sql2 = "select user_name,password from users where user_name = '"+user+"'and password = '"+pass+"'";
             rs = st.executeQuery(sql);
             
             int count = 0;
             while(rs.next()){
                 count = count + 1;
             }if(count == 1){
-                JOptionPane.showMessageDialog(null, "Login succes!");
+                rs = st.executeQuery(sql2);
+                int count2 = 0;
+                while(rs.next()){
+                    count2 = count2 + 1;
+                }if(count2 == 1){
+                    JOptionPane.showMessageDialog(null, "Login succes!");
+                    closeFrame();
+                    AccountFrame AF = new AccountFrame();
+                    AF.setVisible(true);
+                    
+                }else{
+                    JOptionPane.showMessageDialog(null, "Password is wrong");
+                }                        
             }else{
-                JOptionPane.showMessageDialog(null, "Username or Password are wrong");
+                JOptionPane.showMessageDialog(null, "Username is wrong");
             }
         } catch(Exception ex){
             ex.printStackTrace();
